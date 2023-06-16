@@ -22,6 +22,13 @@ class StringAttr;
 /// with immutable, uniqued keys owned by MLIRContext. As such, an Attribute is
 /// a thin wrapper around an underlying storage pointer. Attributes are usually
 /// passed by value.
+///
+/// mlir-note
+/// Attribute 是一个基类，用以描述编译过程中的常量
+/// Attribute 实例类似于一个 const 变量，一旦创建值是不可变的
+/// Attribute 存放在 MLIRContext 中
+/// Attribute 实例是值传递的，因为它本质是一个存储对象指针的包装
+/// Attribute 支持同类赋值来改变指针指向，这和值不变不矛盾
 class Attribute {
 public:
   /// Utility class for implementing attributes.
@@ -39,6 +46,7 @@ public:
       : impl(const_cast<ImplType *>(impl)) {}
 
   Attribute(const Attribute &other) = default;
+  /// 属性的互相赋值
   Attribute &operator=(const Attribute &other) = default;
 
   bool operator==(Attribute other) const { return impl == other.impl; }
@@ -65,9 +73,11 @@ public:
   TypeID getTypeID() { return impl->getAbstractAttribute().getTypeID(); }
 
   /// Return the context this attribute belongs to.
+  /// 返回所属的上下文
   MLIRContext *getContext() const;
 
   /// Get the dialect this attribute is registered to.
+  /// 返回所注册的方言
   Dialect &getDialect() const {
     return impl->getAbstractAttribute().getDialect();
   }
@@ -144,6 +154,7 @@ public:
   ImplType *getImpl() const { return impl; }
 
 protected:
+ /// impl 指针指向实际存储对象
   ImplType *impl{nullptr};
 };
 
@@ -186,11 +197,15 @@ inline ::llvm::hash_code hash_value(Attribute arg) {
 //===----------------------------------------------------------------------===//
 
 /// NamedAttribute represents a combination of a name and an Attribute value.
+/// 
+/// mlir-note
+/// 命名属性类， 包含一个属性名成员
 class NamedAttribute {
 public:
   NamedAttribute(StringAttr name, Attribute value);
 
   /// Return the name of the attribute.
+  /// 返回属性名，实际仍是一个字符串属性
   StringAttr getName() const;
 
   /// Return the dialect of the name of this attribute, if the name is prefixed
@@ -200,12 +215,15 @@ public:
   Dialect *getNameDialect() const;
 
   /// Return the value of the attribute.
+  /// 返回属性值（实例）
   Attribute getValue() const { return value; }
 
   /// Set the name of this attribute.
+  /// 设置属性名
   void setName(StringAttr newName);
 
   /// Set the value of this attribute.
+  /// 设置属性值
   void setValue(Attribute newValue) {
     assert(value && "expected valid attribute value");
     value = newValue;
@@ -216,6 +234,7 @@ public:
   /// Compare this attribute to the provided string, ordering by name.
   bool operator<(StringRef rhs) const;
 
+  /// 属性名和属性值都相等才是相等
   bool operator==(const NamedAttribute &rhs) const {
     return name == rhs.name && value == rhs.value;
   }
