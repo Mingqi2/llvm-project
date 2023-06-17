@@ -244,6 +244,7 @@ private:
   NamedAttribute(Attribute name, Attribute value) : name(name), value(value) {}
 
   /// Allow access to internals to enable hashing.
+  /// 声明友元函数和友元类，可在外部直接访问本类的私有成员，如name， value
   friend ::llvm::hash_code hash_value(const NamedAttribute &arg);
   friend DenseMapInfo<NamedAttribute>;
 
@@ -256,6 +257,7 @@ private:
 
 inline ::llvm::hash_code hash_value(const NamedAttribute &arg) {
   using AttrPairT = std::pair<Attribute, Attribute>;
+  /// @Q 在hash值计算中，value起什么作用，可以只用name吗
   return DenseMapInfo<AttrPairT>::getHashValue(AttrPairT(arg.name, arg.value));
 }
 
