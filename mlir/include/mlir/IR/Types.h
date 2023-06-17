@@ -20,6 +20,8 @@ class AsmState;
 /// Instances of the Type class are uniqued, have an immutable identifier and an
 /// optional mutable component.  They wrap a pointer to the storage object owned
 /// by MLIRContext.  Therefore, instances of Type are passed around by value.
+/// Type 的实例是独特的, 有一个不可变的ID和一个可选可变的成分
+/// 它是一个指针的包装, 指向context下的存储对象, 所以是传值
 ///
 /// Some types are "primitives" meaning they do not have any parameters, for
 /// example the Index type.  Parametric types have additional information that
@@ -28,6 +30,8 @@ class AsmState;
 /// instances of the IntegerType. Type parameters are part of the unique
 /// immutable key.  The mutable component of the type can be modified after the
 /// type is created, but cannot affect the identity of the type.
+/// 带参Type的参数是ID的一部分, 换言之决定了这个Type，是不可变的
+/// 可变成分在Type 创建后可以被修改，但这不影响Type的身份
 ///
 /// Types are constructed and uniqued via the 'detail::TypeUniquer' class.
 ///
@@ -59,6 +63,8 @@ class AsmState;
 ///      * If the KeyTy does not have an llvm::DenseMapInfo specialization, the
 ///        storage class must define a hashing method:
 ///         'static unsigned hashKey(const KeyTy &)'
+/// 带参的存储Type 必须要定义KeyTy，来标志Type 的实例
+/// 存储类要为KeyTy 定义一个hash 方法（应该是用以计算地址来存储和查找Type的）
 ///
 ///    - Provide a method, 'bool operator==(const KeyTy &) const', to
 ///      compare the storage instance against an instance of the key type.
