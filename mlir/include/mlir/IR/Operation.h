@@ -29,6 +29,7 @@ enum class OpProperties : char {};
 } // namespace detail
 
 /// Operation is the basic unit of execution within MLIR.
+/// Operation 是mlir的基本执行单位
 ///
 /// The following documentation are recommended to understand this class:
 /// - https://mlir.llvm.org/docs/LangRef/#operations
@@ -38,20 +39,22 @@ enum class OpProperties : char {};
 /// name is interpreted so that if it contains a '.' character, the part before
 /// is the dialect name this operation belongs to, and everything that follows
 /// is this operation name within the dialect.
+/// 它的名字由dialect名字和自己名字组成， 由'.'分开
 ///
 /// An Operation defines zero or more SSA `Value` that we refer to as the
 /// Operation results. This array of Value is actually stored in memory before
 /// the Operation itself in reverse order. That is for an Operation with 3
 /// results we allocate the following memory layout:
+/// 在内存中，results 倒序存储在Operation前面，可以有零到多个
 ///
 ///  [Result2, Result1, Result0, Operation]
 ///                              ^ this is where `Operation*` pointer points to.
 ///
 /// A consequence of this is that this class must be heap allocated, which is
 /// handled by the various `create` methods. Each result contains:
-///  - one pointer to the first use (see `OpOperand`)
-///  - the type of the SSA Value this result defines.
-///  - the index for this result in the array.
+///  - one pointer to the first use (see `OpOperand`) // result里面有一个指向first use的指针，这个first use一般是OpOperand
+///  - the type of the SSA Value this result defines. // result里面定义了SSA（静态单赋值）的值的类型
+///  - the index for this result in the array.        // result里面包含了自己在数组中的索引
 /// The results are defined as subclass of `ValueImpl`, and more precisely as
 /// the only two subclasses of `OpResultImpl`: `InlineOpResult` and
 /// `OutOfLineOpResult`. The former is used for the first 5 results and the
@@ -65,13 +68,18 @@ enum class OpProperties : char {};
 /// these uses is an instance of `OpOperand`. This optional array is initially
 /// tail allocated with the operation class itself, but can be dynamically moved
 /// out-of-line in a dynamic allocation as needed.
+/// Operation 有零或多个operands：它们是SSA Value的使用（uses），而SSA Value可以是别的operation的结果，
+/// 也可以是Block的参数。每一个Use都是`OpOperand`的实例。
 ///
 /// An Operation may contain optionally one or multiple Regions, stored in a
 /// tail allocated array. Each `Region` is a list of Blocks. Each `Block` is
 /// itself a list of Operations. This structure is effectively forming a tree.
+/// Operation 包括一到多个regions， region 包括一系列的blocks， block 包括一系列的Operations
+/// 它们构成了一个树状结构
 ///
 /// Some operations like branches also refer to other Block, in which case they
 /// would have an array of `BlockOperand`.
+/// `BlockOperand` 是说这个operand引用了一个block。【需要更细节的解释】
 ///
 /// An Operation may contain optionally a "Properties" object: this is a
 /// pre-defined C++ object with a fixed size. This object is owned by the
